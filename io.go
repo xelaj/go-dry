@@ -2,10 +2,12 @@ package dry
 
 import (
 	"bytes"
+	"context"
 	"encoding/binary"
 	"fmt"
 	"io"
 	"os"
+	"strconv"
 )
 
 type CountingReader struct {
@@ -118,4 +120,66 @@ type WriterFunc func(p []byte) (int, error)
 
 func (f WriterFunc) Write(p []byte) (int, error) {
 	return f(p)
+}
+
+// CancelableReader позволяет читать данные с контекстом
+type CancelableReader struct {
+	ctx  context.Context
+	data chan []byte
+
+	// размер сообщения, которое мы хотим получить. пока в sizeWant не пошлется длина, ридер не будет читать
+	sizeWant chan int
+	
+	err      error
+	r        io.Reader
+}
+
+func (c *CancelableReader) begin() {
+	for {
+		buf := make([]byte, <-c.sizeWant)
+		_, err := c.r.Read(buf)
+		if err != nil {
+			c.err = err
+			close(c.data)
+			return
+		}
+		c.data <- buf
+	}
+}
+
+func (c *CancelableReader) Read(p []byte) (int, error) {
+	c.sizeWant <- len(p)
+	select {
+	case <-c.ctx.Done():
+		return 0, c.ctx.Err()
+	case d, ok := <-c.data:
+		if !ok {
+			return 0, c.err
+		}
+		copy(p, d)
+		return len(d), nil
+	}
+}
+
+func (c *CancelableReader) ReadByte() (byte, error) {
+	b := make([]byte, 1)
+
+	n, err := c.Read(b)
+	if err != nil {
+		return 0x0, err
+	}
+	PanicIf(n != 1, "read more than 1 byte, got "+strconv.Itoa(n))
+
+	return b[0], nil
+}
+
+func NewCancelableReader(ctx context.Context, r io.Reader) *CancelableReader {
+	c := &CancelableReader{
+		r:        r,
+		ctx:      ctx,
+		data:     make(chan []byte),
+		sizeWant: make(chan int),
+	}
+	go c.begin()
+	return c
 }

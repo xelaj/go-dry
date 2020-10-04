@@ -171,8 +171,8 @@ func StringToBool(s string) bool {
 }
 
 func StringInSlice(s string, slice []string) bool {
-	for i := range slice {
-		if slice[i] == s {
+	for _, v := range slice {
+		if v == s {
 			return true
 		}
 	}

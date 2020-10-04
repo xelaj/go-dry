@@ -10,8 +10,14 @@ import (
 func PanicIfErr(args ...interface{}) {
 	for _, v := range args {
 		if err, _ := v.(error); err != nil {
-			panic(fmt.Errorf("Panicking because of error: %s\nAt:\n%s\n", err, StackTrace(2)))
+			panic(fmt.Errorf("Panicking because of error: %s\n", err))
 		}
+	}
+}
+
+func PanicIf(condition bool, i ...interface{}) {
+	if condition {
+		panic(fmt.Sprint(i...))
 	}
 }
 

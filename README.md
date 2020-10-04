@@ -2,5 +2,5 @@ go-dry
 ======
 
 -DRY (don't repeat yourself) package for Go
-  		  
--Documentation: http://godoc.org/github.com/ungerik/go-dry
+
+-Documentation: http://pkg.go.dev/github.com/xelaj/go-dry

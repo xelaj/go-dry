@@ -40,3 +40,14 @@ func RandomHEXString(length int) string {
 func RandomChooseString(items ...string) string {
 	return items[mathRand.Intn(len(items))]
 }
+
+func RandomBytes(size int) []byte {
+	b := make([]byte, size)
+	_, _ = mathRand.Read(b)
+	return b
+}
+
+
+func RandomChoose(items ...interface{}) interface{} {
+	return items[mathRand.Intn(len(items))]
+}

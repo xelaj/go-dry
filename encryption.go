@@ -4,8 +4,12 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
+	"crypto/sha1"
+	"encoding/hex"
 	"io"
 	"sync"
+
+	"golang.org/x/crypto/sha3"
 )
 
 var (
@@ -78,4 +82,32 @@ func DecryptAES(key []byte, ciphertext []byte) []byte {
 	stream.XORKeyStream(ciphertext, ciphertext)
 
 	return ciphertext
+}
+
+func Sha3256(text string) []byte {
+	h := sha3.New256()
+	h.Write([]byte(text))
+	return h.Sum(nil)
+}
+
+func Sha3512(text string) []byte {
+	h := sha3.New512()
+	h.Write([]byte(text))
+	return h.Sum(nil)
+}
+
+func Sha3512Hex(text string) string {
+	h := sha3.New512()
+	h.Write([]byte(text))
+	return hex.EncodeToString(h.Sum(nil))
+}
+
+func Sha1(input string) []byte {
+	r := sha1.Sum([]byte(input))
+	return r[:]
+}
+
+func Sha1Byte(input []byte) []byte {
+	r := sha1.Sum(input)
+	return r[:]
 }

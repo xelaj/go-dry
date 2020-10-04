@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"math/big"
 	"strings"
 )
 
@@ -163,4 +164,58 @@ func BytesFilter(f func(byte) bool, data []byte) []byte {
 		}
 	}
 	return result
+}
+
+var bitlen = []int{
+	1 << 3,  // 8
+	1 << 4,  // 16
+	1 << 5,  // 32
+	1 << 6,  // 64
+	1 << 7,  // 128
+	1 << 8,  // 256
+	1 << 9,  // 512
+	1 << 10, // 1024
+	1 << 11, // 2048
+}
+
+func BigIntBytes(v *big.Int, bitsize int) []byte {
+	vbytes := v.Bytes()
+	vbytesLen := len(vbytes)
+	for i, b := range bitlen {
+		if b == bitsize {
+			break
+		}
+
+		if i == len(bitlen)-1 {
+			panic(fmt.Errorf("bitsize not squaring by 2: bitsize %v", bitsize))
+		}
+	}
+
+	offset := bitsize/8 - vbytesLen
+	if offset < 0 {
+		panic(fmt.Errorf("bitsize too small: have %v, want at least %v", bitsize, vbytes))
+	}
+
+	return append(make([]byte, offset), vbytes...)
+}
+
+func BigIntBytesAutoChoose(v *big.Int) []byte {
+	vbytes := v.Bytes()
+	vbytesLen := len(vbytes)
+	choosedBitsize := bitlen[0]
+	for i, bitsize := range bitlen {
+		// 8 это размер байта в битах
+		if len(vbytes)*8 <= bitsize {
+			choosedBitsize = bitsize
+			break
+		}
+
+		// если даже самая большая битность маленькая то паникуем
+		if i == len(bitlen)-1 {
+			panic(fmt.Errorf("value is too large: bitsize is %v", vbytesLen*8))
+		}
+	}
+
+	offset := choosedBitsize/8 - vbytesLen
+	return append(make([]byte, offset), vbytes...)
 }
