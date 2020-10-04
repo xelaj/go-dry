@@ -5,6 +5,7 @@ import (
 	"io"
 	"reflect"
 	"strings"
+	"sync"
 	"testing"
 )
 
@@ -94,20 +95,26 @@ func Test_BytesDecodeHex(t *testing.T) {
 		BytesDecodeHex("68656C6C6F"))
 }
 
+//nolint:staticcheck // strongly protected by WaitGroup
 func testCompressDecompress(t *testing.T,
 	compressFunc func([]byte) []byte,
 	decompressFunc func([]byte) []byte) {
-	testFn := func(testData []byte) {
+	testFn := func(wg *sync.WaitGroup, testData []byte) {
+		defer wg.Done()
 		compressedData := compressFunc(testData)
 		uncompressedData := decompressFunc(compressedData)
 		if !bytes.Equal(testData, uncompressedData) {
 			t.FailNow()
 		}
 	}
+	wg := new(sync.WaitGroup)
+	wg.Add(3)
 
-	go testFn([]byte("hello123"))
-	go testFn([]byte("gopher456"))
-	go testFn([]byte("dry789"))
+	go testFn(wg, []byte("hello123"))
+	go testFn(wg, []byte("gopher456"))
+	go testFn(wg, []byte("dry789"))
+
+	wg.Wait()
 }
 
 func Test_BytesDeflateInflate(t *testing.T) {

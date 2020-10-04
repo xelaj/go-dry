@@ -3,7 +3,6 @@ package dry
 import "testing"
 
 func TestEndianSafeSplitUint16(t *testing.T) {
-
 	least, most := EndianSafeSplitUint16(1)
 	if !(least == 1 && most == 0) {
 		t.Fail()
@@ -13,5 +12,4 @@ func TestEndianSafeSplitUint16(t *testing.T) {
 	if !(least == 0 && most == 1) {
 		t.Fail()
 	}
-
 }

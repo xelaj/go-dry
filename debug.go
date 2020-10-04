@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"runtime"
 	"strings"
@@ -61,7 +62,7 @@ func StackTraceLine(skipFrames int) string {
 	return b.String()
 }
 
-func fprintStackTraceLine(i int, lastFile *string, b *strings.Builder) bool {
+func fprintStackTraceLine(i int, lastFile *string, b io.Writer) bool {
 	var lines [][]byte
 
 	pc, file, line, ok := runtime.Caller(i)
@@ -120,7 +121,7 @@ func function(pc uintptr) []byte {
 	if period := bytes.Index(name, dot); period >= 0 {
 		name = name[period+1:]
 	}
-	name = bytes.Replace(name, centerDot, dot, -1)
+	name = bytes.ReplaceAll(name, centerDot, dot)
 	return name
 }
 

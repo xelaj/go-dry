@@ -99,12 +99,12 @@ func ReadLine(reader io.Reader) (line string, err error) {
 // The first byte from os.Stdin is returned as result.
 // If there are println arguments, then fmt.Println will be
 // called with those before reading from os.Stdin.
-func WaitForStdin(println ...interface{}) byte {
-	if len(println) > 0 {
-		fmt.Println(println...)
+func WaitForStdin(v ...interface{}) byte {
+	if len(v) > 0 {
+		fmt.Println(v...)
 	}
 	buffer := make([]byte, 1)
-	os.Stdin.Read(buffer)
+	_, _ = os.Stdin.Read(buffer)
 	return buffer[0]
 }
 
