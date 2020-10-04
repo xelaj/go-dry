@@ -69,10 +69,16 @@ func HTTPPostJSON(url string, data interface{}) error {
 	if err != nil {
 		return err
 	}
-	response, err := http.Post(url, "application/json", bytes.NewBuffer(b))
+	req := &http.Request{
+		Method: http.MethodPost,
+		Body:   ioutil.NopCloser(bytes.NewReader(b)),
+	}
+	req.Header.Set("Content-Type", "application/json")
+	response, err := http.DefaultClient.Do(req)
 	if err == nil && (response.StatusCode < 200 || response.StatusCode > 299) {
 		err = errors.New(response.Status)
 	}
+	_ = response.Body.Close()
 	return err
 }
 
@@ -85,10 +91,16 @@ func HTTPPostXML(url string, data interface{}) error {
 	if err != nil {
 		return err
 	}
-	response, err := http.Post(url, "application/xml", bytes.NewBuffer(b))
+	req := &http.Request{
+		Method: http.MethodPost,
+		Body:   ioutil.NopCloser(bytes.NewReader(b)),
+	}
+	req.Header.Set("Content-Type", "application/xml")
+	response, err := http.DefaultClient.Do(req)
 	if err == nil && (response.StatusCode < 200 || response.StatusCode > 299) {
 		err = errors.New(response.Status)
 	}
+	_ = response.Body.Close()
 	return err
 }
 
@@ -102,7 +114,7 @@ func HTTPDelete(url string) (statusCode int, statusText string, err error) {
 	if err != nil {
 		return 0, "", err
 	}
-	return response.StatusCode, response.Status, nil
+	return response.StatusCode, response.Status, response.Body.Close()
 }
 
 // HTTPPostForm performs a HTTP POST request with data as application/x-www-form-urlencoded
@@ -116,7 +128,7 @@ func HTTPPostForm(url string, data url.Values) (statusCode int, statusText strin
 	if err != nil {
 		return 0, "", err
 	}
-	return response.StatusCode, response.Status, nil
+	return response.StatusCode, response.Status, response.Body.Close()
 }
 
 // HTTPPutForm performs a HTTP PUT request with data as application/x-www-form-urlencoded
@@ -130,7 +142,7 @@ func HTTPPutForm(url string, data url.Values) (statusCode int, statusText string
 	if err != nil {
 		return 0, "", err
 	}
-	return response.StatusCode, response.Status, nil
+	return response.StatusCode, response.Status, response.Body.Close()
 }
 
 // HTTPRespondMarshalJSON marshals response as JSON to responseWriter, sets Content-Type to application/json

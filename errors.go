@@ -10,7 +10,7 @@ import (
 func PanicIfErr(args ...interface{}) {
 	for _, v := range args {
 		if err, _ := v.(error); err != nil {
-			panic(fmt.Errorf("Panicking because of error: %s\n", err))
+			panic(fmt.Errorf("panicking because of error: %w\n", err))
 		}
 	}
 }

@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func Test_StringMap(t *testing.T) {
@@ -38,7 +38,7 @@ func Test_StringFilter(t *testing.T) {
 }
 
 func Test_StringFindBetween(t *testing.T) {
-	s := "Hello <em>World</em>!"
+	const s = "Hello <em>World</em>!"
 
 	between, remainder, found := StringFindBetween(s, "<em>", "</em>")
 	if between != "World" {
@@ -66,17 +66,16 @@ func Test_StringFindBetween(t *testing.T) {
 	if between != "" {
 		t.Fail()
 	}
-	if remainder != "Hello <em>World</em>!" {
+	if remainder != s {
 		t.Fail()
 	}
 	if found {
 		t.Fail()
 	}
-
 }
 
 func Test_StringStripHTMLTags(t *testing.T) {
-	withHTML := "<div>Hello > World <br/> <im src='xxx'/>"
+	const withHTML = "<div>Hello > World <br/> <im src='xxx'/>"
 	skippedHTML := "Hello > World  "
 
 	if StringStripHTMLTags(withHTML) != skippedHTML {
@@ -124,10 +123,9 @@ func TestStringsCommonPrefix(t *testing.T) {
 		},
 	}
 	for i, tt := range tests {
+		tt := tt
 		t.Run("StringsCommonPrefix_"+strconv.Itoa(i), func(t *testing.T) {
-			if !assert.Equal(t, tt.want, StringsCommonPrefix(tt.a, tt.b)) {
-				t.Fail()
-			}
+			require.Equal(t, tt.want, StringsCommonPrefix(tt.a, tt.b))
 		})
 	}
 }

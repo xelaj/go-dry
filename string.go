@@ -36,9 +36,8 @@ func StringListContains(l []string, s string) bool {
 }
 
 func StringListContainsCaseInsensitive(l []string, s string) bool {
-	s = strings.ToLower(s)
 	for i := range l {
-		if strings.ToLower(l[i]) == s {
+		if strings.EqualFold(l[i], s) {
 			return true
 		}
 	}
@@ -55,8 +54,8 @@ func StringPrettifyJSON(compactJSON string) string {
 }
 
 func StringEscapeJSON(jsonString string) string {
-	jsonString = strings.Replace(jsonString, `\`, `\\`, -1)
-	jsonString = strings.Replace(jsonString, `"`, `\"`, -1)
+	jsonString = strings.ReplaceAll(jsonString, `\`, `\\`)
+	jsonString = strings.ReplaceAll(jsonString, `"`, `\"`)
 	return jsonString
 }
 
@@ -114,7 +113,7 @@ func StringReplaceHTMLTags(text, replacement string) (plainText string) {
 // StringMD5Hex returns the hex encoded MD5 hash of data
 func StringMD5Hex(data string) string {
 	hash := md5.New()
-	hash.Write([]byte(data))
+	_, _ = hash.Write([]byte(data))
 	return fmt.Sprintf("%x", hash.Sum(nil))
 }
 
@@ -126,7 +125,7 @@ func StringSHA1Base64(data string) string {
 
 func StringAddURLParam(url, name, value string) string {
 	var separator string
-	if strings.IndexRune(url, '?') == -1 {
+	if !strings.ContainsRune(url, '?') {
 		separator = "?"
 	} else {
 		separator = "&"
@@ -249,7 +248,7 @@ func StringReplaceMulti(str string, fromTo ...string) string {
 		panic("Need even number of fromTo arguments")
 	}
 	for i := 0; i < len(fromTo); i += 2 {
-		str = strings.Replace(str, fromTo[i], fromTo[i+1], -1)
+		str = strings.ReplaceAll(str, fromTo[i], fromTo[i+1])
 	}
 	return str
 }
@@ -343,9 +342,8 @@ func StringSplitOnce(s, sep string) (pre, post string) {
 	parts := strings.SplitN(s, sep, 1)
 	if len(parts) == 2 {
 		return parts[0], parts[1]
-	} else {
-		return parts[0], ""
 	}
+	return parts[0], ""
 }
 
 func StringSplitOnceChar(s string, sep byte) (pre, post string) {
@@ -393,9 +391,8 @@ func (s StringGroupedNumberPostfixSorter) Less(i, j int) bool {
 			inti, _ := strconv.Atoi(ni)
 			intj, _ := strconv.Atoi(nj)
 			return inti < intj
-		} else {
-			return len(ni) < len(nj)
 		}
+		return len(ni) < len(nj)
 	}
 
 	return bi < bj
@@ -409,7 +406,7 @@ func (s StringGroupedNumberPostfixSorter) Swap(i, j int) {
 // Map a function on each element of a slice of strings.
 func StringMap(f func(string) string, data []string) []string {
 	size := len(data)
-	result := make([]string, size, size)
+	result := make([]string, size)
 	for i := 0; i < size; i++ {
 		result[i] = f(data[i])
 	}
@@ -418,7 +415,7 @@ func StringMap(f func(string) string, data []string) []string {
 
 // Filter out all strings where the function does not return true.
 func StringFilter(f func(string) bool, data []string) []string {
-	result := make([]string, 0, 0)
+	result := make([]string, 0)
 	for _, element := range data {
 		if f(element) {
 			result = append(result, element)

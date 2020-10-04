@@ -16,8 +16,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-
-	// "strconv"
 	"strings"
 	"time"
 )
@@ -68,18 +66,18 @@ func FileAppendBytes(filename string, data []byte) error {
 }
 
 func FileGetString(filenameOrURL string, timeout ...time.Duration) (string, error) {
-	bytes, err := FileGetBytes(filenameOrURL, timeout...)
+	raw, err := FileGetBytes(filenameOrURL, timeout...)
 	if err != nil {
 		return "", err
 	}
-	return string(bytes), nil
+	return string(raw), nil
 }
 
-func FileSetString(filename string, data string) error {
+func FileSetString(filename, data string) error {
 	return FileSetBytes(filename, []byte(data))
 }
 
-func FileAppendString(filename string, data string) error {
+func FileAppendString(filename, data string) error {
 	return FileAppendBytes(filename, []byte(data))
 }
 
@@ -97,19 +95,19 @@ func FileUnmarshallJSON(filenameOrURL string, result interface{}, timeout ...tim
 }
 
 func FileSetJSON(filename string, data interface{}) error {
-	bytes, err := json.Marshal(data)
+	raw, err := json.Marshal(data)
 	if err != nil {
 		return err
 	}
-	return FileSetBytes(filename, bytes)
+	return FileSetBytes(filename, raw)
 }
 
 func FileSetJSONIndent(filename string, data interface{}, indent string) error {
-	bytes, err := json.MarshalIndent(data, "", indent)
+	raw, err := json.MarshalIndent(data, "", indent)
 	if err != nil {
 		return err
 	}
-	return FileSetBytes(filename, bytes)
+	return FileSetBytes(filename, raw)
 }
 
 func FileGetXML(filenameOrURL string, timeout ...time.Duration) (result interface{}, err error) {
@@ -126,11 +124,11 @@ func FileUnmarshallXML(filenameOrURL string, result interface{}, timeout ...time
 }
 
 func FileSetXML(filename string, data interface{}) error {
-	bytes, err := xml.Marshal(data)
+	raw, err := xml.Marshal(data)
 	if err != nil {
 		return err
 	}
-	return FileSetBytes(filename, bytes)
+	return FileSetBytes(filename, raw)
 }
 
 func FileGetCSV(filenameOrURL string, timeout ...time.Duration) ([][]string, error) {
@@ -255,7 +253,7 @@ func FileSetConfig(filename string, config map[string]string) error {
 	var buffer bytes.Buffer
 	for key, value := range config {
 		if strings.ContainsRune(key, '=') {
-			return fmt.Errorf("Key '%s' contains '='", key)
+			return fmt.Errorf("key '%s' contains '='", key)
 		}
 		fmt.Fprintf(&buffer, "%s=%s\n", key, value)
 	}
@@ -290,7 +288,10 @@ func FileGetLastLine(filenameOrURL string, timeout ...time.Duration) (line strin
 			return "", err
 		}
 		if start := info.Size() - 64*1024; start > 0 {
-			file.Seek(start, os.SEEK_SET)
+			_, err := file.Seek(start, io.SeekStart)
+			if err != nil {
+				return "", err
+			}
 		}
 		data, err = ioutil.ReadAll(file)
 		if err != nil {
@@ -573,7 +574,7 @@ func ListDirDirectories(dir string) ([]string, error) {
 
 // FileCopy copies file source to destination dest.
 // Based on Jaybill McCarthy's code which can be found at http://jayblog.jaybill.com/post/id/26
-func FileCopy(source string, dest string) (err error) {
+func FileCopy(source, dest string) (err error) {
 	sourceFile, err := os.Open(source)
 	if err != nil {
 		return err
@@ -584,20 +585,22 @@ func FileCopy(source string, dest string) (err error) {
 		return err
 	}
 	defer destFile.Close()
+
 	_, err = io.Copy(destFile, sourceFile)
-	if err == nil {
-		si, err := os.Stat(source)
-		if err == nil {
-			err = os.Chmod(dest, si.Mode())
-		}
+	if err != nil {
+		return err
 	}
-	return err
+	si, err := os.Stat(source)
+	if err != nil {
+		return err
+	}
+	return os.Chmod(dest, si.Mode())
 }
 
 // FileCopyDir recursively copies a directory tree, attempting to preserve permissions.
 // Source directory must exist, destination directory must *not* exist.
 // Based on Jaybill McCarthy's code which can be found at http://jayblog.jaybill.com/post/id/26
-func FileCopyDir(source string, dest string) (err error) {
+func FileCopyDir(source, dest string) (err error) {
 	// get properties of source dir
 	fileInfo, err := os.Stat(source)
 	if err != nil {

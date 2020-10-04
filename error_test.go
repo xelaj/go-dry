@@ -1,20 +1,20 @@
 package dry
 
 import (
-	// "strings"
-	// "fmt"
 	"errors"
 	"testing"
 )
 
+const TestErrorString = "TestError"
+
 func Test_Error(t *testing.T) {
-	err := AsError("TestError")
-	if err == nil || err.Error() != "TestError" {
+	err := AsError(TestErrorString)
+	if err == nil || err.Error() != TestErrorString {
 		t.Fail()
 	}
 
-	err = AsError(errors.New("TestError"))
-	if err == nil || err.Error() != "TestError" {
+	err = AsError(errors.New(TestErrorString))
+	if err == nil || err.Error() != TestErrorString {
 		t.Fail()
 	}
 }
