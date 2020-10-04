@@ -1,4 +1,5 @@
 // +build test
+
 package dry
 
 var _ = func() bool {
