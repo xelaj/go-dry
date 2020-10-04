@@ -129,9 +129,9 @@ type CancelableReader struct {
 
 	// размер сообщения, которое мы хотим получить. пока в sizeWant не пошлется длина, ридер не будет читать
 	sizeWant chan int
-	
-	err      error
-	r        io.Reader
+
+	err error
+	r   io.Reader
 }
 
 func (c *CancelableReader) begin() {
