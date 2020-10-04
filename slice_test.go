@@ -3,7 +3,7 @@ package dry
 import (
 	"testing"
 
-	"github.com/k0kubun/pp/v3"
+	"github.com/k0kubun/pp"
 )
 
 func TestDeleteIndex(t *testing.T) {
