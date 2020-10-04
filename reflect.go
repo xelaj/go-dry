@@ -250,7 +250,7 @@ func IsZero(value interface{}) bool {
 		return v.Float() == 0
 
 	case reflect.Bool:
-		return !v.Bool()
+		return !v.Bool() // if value is false, then it is zero value
 
 	case reflect.Ptr, reflect.Chan, reflect.Func, reflect.Interface, reflect.Slice, reflect.Map:
 		return v.IsNil()
