@@ -75,10 +75,12 @@ func HTTPPostJSON(url string, data interface{}) error {
 	}
 	req.Header.Set("Content-Type", "application/json")
 	response, err := http.DefaultClient.Do(req)
+	defer response.Body.Close()
+	
 	if err == nil && (response.StatusCode < 200 || response.StatusCode > 299) {
 		err = errors.New(response.Status)
 	}
-	_ = response.Body.Close()
+	
 	return err
 }
 
