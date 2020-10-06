@@ -1,8 +1,11 @@
 package dry
 
 import (
+	"fmt"
 	"path/filepath"
 	"strings"
+
+	"golang.org/x/sys/unix"
 )
 
 func PathWithoutExt(filename string) string {
@@ -32,4 +35,33 @@ func PathSplitExt(path string) (basepath, ext string) {
 	ext = strings.TrimPrefix(ext, ".")
 
 	return
+}
+
+func PathIsWirtable(path string) bool {
+	inspectPath, _ := filepath.Abs(path)
+
+	nearestPath := PathNearestExisting(inspectPath)
+	if nearestPath == "" {
+		return false
+	}
+
+	return unix.Access(nearestPath, unix.W_OK) == nil
+}
+
+func PathNearestExisting(path string) string {
+	if FileExists(path) {
+		return path
+	}
+
+	testpath := path
+	for testpath != "" {
+		testpath, _ = filepath.Split(testpath)
+		testpath = testpath[:len(testpath)-1] // removing trailing /
+		if FileExists(testpath) {
+			return testpath
+		}
+		fmt.Println(testpath)
+	}
+
+	return ""
 }

@@ -1,8 +1,6 @@
 package dry
 
 import (
-	// "strings"
-	// "fmt"
 	"testing"
 )
 

@@ -79,6 +79,10 @@ func SliceExpand(slice interface{}, i, j int) interface{} {
 }
 
 func SliceToInterfaceSlice(in interface{}) []interface{} {
+	if in == nil {
+		return nil
+	}
+
 	ival := reflect.ValueOf(in)
 	if ival.Type().Kind() != reflect.Slice {
 		panic("not a slice: " + ival.Type().String())
