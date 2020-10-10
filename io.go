@@ -136,12 +136,17 @@ type CancelableReader struct {
 
 func (c *CancelableReader) begin() {
 	for {
-		buf := make([]byte, <-c.sizeWant)
-		_, err := c.r.Read(buf)
+		sizewant := <-c.sizeWant
+		buf := make([]byte, sizewant)
+		// readFull, cause some readers like net.TCPConn returns size smaller than buf size
+		n, err := io.ReadFull(c.r, buf)
 		if err != nil {
 			c.err = err
 			close(c.data)
 			return
+		}
+		if n != sizewant {
+			panic("read " + strconv.Itoa(n) + ", want " + strconv.Itoa(sizewant))
 		}
 		c.data <- buf
 	}
