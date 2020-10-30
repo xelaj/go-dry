@@ -47,6 +47,6 @@ func RandomBytes(size int) []byte {
 	return b
 }
 
-func RandomChoose(items ...interface{}) interface{} {
+func RandomChoose(items ...any) any {
 	return items[mathRand.Intn(len(items))]
 }

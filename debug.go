@@ -1,3 +1,8 @@
+// Copyright (c) 2020 Xelaj Software
+//
+// This file is a part of go-dry package.
+// See https://github.com/xelaj/go-dry/blob/master/LICENSE for details
+
 package dry
 
 import (
@@ -17,7 +22,7 @@ import (
 // a string and used as JSON line indent.
 // If no indet argument is given, two spaces will be used
 // to indent JSON lines.
-func PrettyPrintAsJSON(input interface{}, indent ...string) error {
+func PrettyPrintAsJSON(input any, indent ...string) error {
 	var indentStr string
 	if len(indent) == 0 {
 		indentStr = "  "
@@ -39,7 +44,7 @@ func PrettyPrintAsJSON(input interface{}, indent ...string) error {
 // Arbitrary objects can be passed as arguments to avoid "declared and not used"
 // error messages when commenting code out and in.
 // The result is a nil interface{} dummy value.
-func Nop(dummiesIn ...interface{}) (dummyOut interface{}) {
+func Nop(dummiesIn ...any) (dummyOut any) {
 	return nil
 }
 

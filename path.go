@@ -1,11 +1,14 @@
+// Copyright (c) 2020 Xelaj Software
+//
+// This file is a part of go-dry package.
+// See https://github.com/xelaj/go-dry/blob/master/LICENSE for details
+
 package dry
 
 import (
 	"fmt"
 	"path/filepath"
 	"strings"
-
-	"golang.org/x/sys/unix"
 )
 
 func PathWithoutExt(filename string) string {
@@ -38,14 +41,7 @@ func PathSplitExt(path string) (basepath, ext string) {
 }
 
 func PathIsWirtable(path string) bool {
-	inspectPath, _ := filepath.Abs(path)
-
-	nearestPath := PathNearestExisting(inspectPath)
-	if nearestPath == "" {
-		return false
-	}
-
-	return unix.Access(nearestPath, unix.W_OK) == nil
+	return pathIsWirtable(path)
 }
 
 func PathNearestExisting(path string) string {

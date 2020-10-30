@@ -1,3 +1,8 @@
+// Copyright (c) 2020 Xelaj Software
+//
+// This file is a part of go-dry package.
+// See https://github.com/xelaj/go-dry/blob/master/LICENSE for details
+
 package dry
 
 import (
@@ -7,7 +12,7 @@ import (
 
 // PanicIfErr panics with a stack trace if any
 // of the passed args is a non nil error
-func PanicIfErr(args ...interface{}) {
+func PanicIfErr(args ...any) {
 	for _, v := range args {
 		if err, _ := v.(error); err != nil {
 			panic(fmt.Sprintf("Panicking because of error: %v\n", err))
@@ -15,7 +20,7 @@ func PanicIfErr(args ...interface{}) {
 	}
 }
 
-func PanicIf(condition bool, i ...interface{}) {
+func PanicIf(condition bool, i ...any) {
 	if condition {
 		panic(fmt.Sprint(i...))
 	}
@@ -24,7 +29,7 @@ func PanicIf(condition bool, i ...interface{}) {
 // GetError returns the last argument that is of type error,
 // panics if none of the passed args is of type error.
 // Note that GetError(nil) will panic because nil is not of type error but interface{}
-func GetError(args ...interface{}) error {
+func GetError(args ...any) error {
 	for i := len(args) - 1; i >= 0; i-- {
 		arg := args[i]
 		if arg != nil {
@@ -37,7 +42,7 @@ func GetError(args ...interface{}) error {
 }
 
 // AsError returns r as error, converting it when necessary
-func AsError(r interface{}) error {
+func AsError(r any) error {
 	if r == nil {
 		return nil
 	}
@@ -106,7 +111,7 @@ type ErrorList []error
 // NewErrorList returns an ErrorList where Collect has been called for args.
 // The returned list will be nil if there was no non nil error in args.
 // Note that alle methods of ErrorList can be called with a nil ErrorList.
-func NewErrorList(args ...interface{}) (list ErrorList) {
+func NewErrorList(args ...any) (list ErrorList) {
 	list.Collect(args...)
 	return list
 }
@@ -154,7 +159,7 @@ func (list ErrorList) Last() error {
 }
 
 // Collect adds any non nil errors in args to the list.
-func (list *ErrorList) Collect(args ...interface{}) {
+func (list *ErrorList) Collect(args ...any) {
 	for _, a := range args {
 		if err, _ := a.(error); err != nil {
 			*list = append(*list, err)

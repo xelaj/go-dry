@@ -1,3 +1,8 @@
+// Copyright (c) 2020 Xelaj Software
+//
+// This file is a part of go-dry package.
+// See https://github.com/xelaj/go-dry/blob/master/LICENSE for details
+
 package dry
 
 import (
@@ -73,7 +78,7 @@ func TestHTTPCompressHandler(t *testing.T) {
 	}
 }
 
-type helloWorldHandler struct{}
+type helloWorldHandler null
 
 func (h *helloWorldHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "hallo welt.")

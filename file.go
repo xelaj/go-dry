@@ -1,3 +1,8 @@
+// Copyright (c) 2020 Xelaj Software
+//
+// This file is a part of go-dry package.
+// See https://github.com/xelaj/go-dry/blob/master/LICENSE for details
+
 package dry
 
 import (
@@ -83,12 +88,12 @@ func FileAppendString(filename string, data string) error {
 	return FileAppendBytes(filename, []byte(data))
 }
 
-func FileGetJSON(filenameOrURL string, timeout ...time.Duration) (result interface{}, err error) {
+func FileGetJSON(filenameOrURL string, timeout ...time.Duration) (result any, err error) {
 	err = FileUnmarshallJSON(filenameOrURL, &result, timeout...)
 	return result, err
 }
 
-func FileUnmarshallJSON(filenameOrURL string, result interface{}, timeout ...time.Duration) error {
+func FileUnmarshallJSON(filenameOrURL string, result any, timeout ...time.Duration) error {
 	data, err := FileGetBytes(filenameOrURL, timeout...)
 	if err != nil {
 		return err
@@ -96,7 +101,7 @@ func FileUnmarshallJSON(filenameOrURL string, result interface{}, timeout ...tim
 	return json.Unmarshal(data, result)
 }
 
-func FileSetJSON(filename string, data interface{}) error {
+func FileSetJSON(filename string, data any) error {
 	bytes, err := json.Marshal(data)
 	if err != nil {
 		return err
@@ -104,7 +109,7 @@ func FileSetJSON(filename string, data interface{}) error {
 	return FileSetBytes(filename, bytes)
 }
 
-func FileSetJSONIndent(filename string, data interface{}, indent string) error {
+func FileSetJSONIndent(filename string, data any, indent string) error {
 	bytes, err := json.MarshalIndent(data, "", indent)
 	if err != nil {
 		return err
@@ -112,12 +117,12 @@ func FileSetJSONIndent(filename string, data interface{}, indent string) error {
 	return FileSetBytes(filename, bytes)
 }
 
-func FileGetXML(filenameOrURL string, timeout ...time.Duration) (result interface{}, err error) {
+func FileGetXML(filenameOrURL string, timeout ...time.Duration) (result any, err error) {
 	err = FileUnmarshallXML(filenameOrURL, &result, timeout...)
 	return result, err
 }
 
-func FileUnmarshallXML(filenameOrURL string, result interface{}, timeout ...time.Duration) error {
+func FileUnmarshallXML(filenameOrURL string, result any, timeout ...time.Duration) error {
 	data, err := FileGetBytes(filenameOrURL, timeout...)
 	if err != nil {
 		return err
@@ -125,7 +130,7 @@ func FileUnmarshallXML(filenameOrURL string, result interface{}, timeout ...time
 	return xml.Unmarshal(data, result)
 }
 
-func FileSetXML(filename string, data interface{}) error {
+func FileSetXML(filename string, data any) error {
 	bytes, err := xml.Marshal(data)
 	if err != nil {
 		return err
@@ -497,7 +502,7 @@ func FileSize(filename string) int64 {
 	return info.Size()
 }
 
-func FilePrintf(filename, format string, args ...interface{}) error {
+func FilePrintf(filename, format string, args ...any) error {
 	file, err := os.OpenFile(filename, os.O_WRONLY, 0660)
 	if err == nil {
 		_, err = fmt.Fprintf(file, format, args...)
@@ -506,7 +511,7 @@ func FilePrintf(filename, format string, args ...interface{}) error {
 	return err
 }
 
-func FileAppendPrintf(filename, format string, args ...interface{}) error {
+func FileAppendPrintf(filename, format string, args ...any) error {
 	file, err := os.OpenFile(filename, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0660)
 	if err == nil {
 		_, err = fmt.Fprintf(file, format, args...)
@@ -515,7 +520,7 @@ func FileAppendPrintf(filename, format string, args ...interface{}) error {
 	return err
 }
 
-func FileScanf(filename, format string, args ...interface{}) error {
+func FileScanf(filename, format string, args ...any) error {
 	file, err := os.OpenFile(filename, os.O_RDONLY, 0660)
 	if err == nil {
 		_, err = fmt.Fscanf(file, format, args...)

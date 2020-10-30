@@ -1,3 +1,8 @@
+// Copyright (c) 2020 Xelaj Software
+//
+// This file is a part of go-dry package.
+// See https://github.com/xelaj/go-dry/blob/master/LICENSE for details
+
 package dry
 
 import (
@@ -18,7 +23,7 @@ import (
 )
 
 // StringMarshalJSON marshals data to an indented string.
-func StringMarshalJSON(data interface{}, indent string) string {
+func StringMarshalJSON(data any, indent string) string {
 	buffer, err := json.MarshalIndent(data, "", indent)
 	if err != nil {
 		return ""
@@ -181,7 +186,7 @@ func StringInSlice(s string, slice []string) bool {
 // StringJoinFormat formats every value in values with format
 // and joins the result with sep as separator.
 // values must be a slice of a formatable type
-func StringJoinFormat(format string, values interface{}, sep string) string {
+func StringJoinFormat(format string, values any, sep string) string {
 	v := reflect.ValueOf(values)
 	if v.Kind() != reflect.Slice {
 		panic("values is not a slice")
@@ -199,7 +204,7 @@ func StringJoinFormat(format string, values interface{}, sep string) string {
 // StringJoin formats every value in values according to its default formatting
 // and joins the result with sep as separator.
 // values must be a slice of a formatable type
-func StringJoin(values interface{}, sep string) string {
+func StringJoin(values any, sep string) string {
 	v := reflect.ValueOf(values)
 	if v.Kind() != reflect.Slice {
 		panic("values is not a slice")
@@ -453,7 +458,7 @@ func StringFind(s, token string) (remainder string, found bool) {
 
 // StringSet wraps map[string]struct{} with some
 // useful methods.
-type StringSet map[string]struct{}
+type StringSet map[string]null
 
 func (set StringSet) Has(s string) bool {
 	_, found := set[s]
@@ -461,7 +466,7 @@ func (set StringSet) Has(s string) bool {
 }
 
 func (set StringSet) Set(s string) {
-	set[s] = struct{}{}
+	set[s] = null{}
 }
 
 func (set StringSet) Delete(s string) {
@@ -470,7 +475,7 @@ func (set StringSet) Delete(s string) {
 
 func (set StringSet) Join(other StringSet) {
 	for s := range other {
-		set[s] = struct{}{}
+		set[s] = null{}
 	}
 }
 
@@ -483,7 +488,7 @@ func (set StringSet) Exclude(other StringSet) {
 func (set StringSet) Clone() StringSet {
 	clone := make(StringSet, len(set))
 	for s := range set {
-		clone[s] = struct{}{}
+		clone[s] = null{}
 	}
 	return clone
 }
@@ -530,4 +535,8 @@ func StringsCommonPrefix(a, b string) string {
 	}
 
 	return string(ra[:i])
+}
+
+func StringsCRLF(in string) string {
+	return strings.ReplaceAll(in, "\r\n", "\n")
 }

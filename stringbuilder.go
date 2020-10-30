@@ -1,3 +1,8 @@
+// Copyright (c) 2020 Xelaj Software
+//
+// This file is a part of go-dry package.
+// See https://github.com/xelaj/go-dry/blob/master/LICENSE for details
+
 package dry
 
 import (
@@ -18,7 +23,7 @@ func (s *StringBuilder) Write(strings ...string) *StringBuilder {
 	return s
 }
 
-func (s *StringBuilder) Printf(format string, args ...interface{}) *StringBuilder {
+func (s *StringBuilder) Printf(format string, args ...any) *StringBuilder {
 	fmt.Fprintf(&s.buffer, format, args...)
 	return s
 }

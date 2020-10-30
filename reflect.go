@@ -1,3 +1,8 @@
+// Copyright (c) 2020 Xelaj Software
+//
+// This file is a part of go-dry package.
+// See https://github.com/xelaj/go-dry/blob/master/LICENSE for details
+
 package dry
 
 import (
@@ -13,7 +18,7 @@ func ReflectTypeOfError() reflect.Type {
 }
 
 // ReflectSetStructFieldString sets the field with name to value.
-func ReflectSetStructFieldString(structPtr interface{}, name, value string) error {
+func ReflectSetStructFieldString(structPtr any, name, value string) error {
 	v := reflect.ValueOf(structPtr)
 	if v.Kind() != reflect.Ptr || v.Elem().Kind() != reflect.Struct {
 		return fmt.Errorf("structPtr must be pointer to a struct, but is %T", structPtr)
@@ -39,7 +44,7 @@ func ReflectSetStructFieldString(structPtr interface{}, name, value string) erro
 // ReflectSetStructFieldsFromStringMap sets the fields of a struct
 // with the field names and values taken from a map[string]string.
 // If errOnMissingField is true, then all fields must exist.
-func ReflectSetStructFieldsFromStringMap(structPtr interface{}, m map[string]string, errOnMissingField bool) error {
+func ReflectSetStructFieldsFromStringMap(structPtr any, m map[string]string, errOnMissingField bool) error {
 	v := reflect.ValueOf(structPtr)
 	if v.Kind() != reflect.Ptr || v.Elem().Kind() != reflect.Struct {
 		return fmt.Errorf("structPtr must be pointer to a struct, but is %T", structPtr)
@@ -119,7 +124,7 @@ func ReflectStructFieldIsExported(structField reflect.StructField) bool {
 // If the element type of slice is interface{}, then the type
 // of the compareFunc arguments can be any type and dynamic
 // casting from the interface value or its address will be attempted.
-func ReflectSort(slice, compareFunc interface{}) {
+func ReflectSort(slice, compareFunc any) {
 	sortable, err := newReflectSortable(slice, compareFunc)
 	if err != nil {
 		panic(err)
@@ -127,7 +132,7 @@ func ReflectSort(slice, compareFunc interface{}) {
 	sort.Sort(sortable)
 }
 
-func newReflectSortable(slice, compareFunc interface{}) (*reflectSortable, error) {
+func newReflectSortable(slice, compareFunc any) (*reflectSortable, error) {
 	t := reflect.TypeOf(compareFunc)
 	if t.Kind() != reflect.Func {
 		return nil, fmt.Errorf("compareFunc must be a function, got %T", compareFunc)
@@ -214,19 +219,19 @@ func (r *reflectSortable) Swap(i, j int) {
 }
 
 // InterfaceSlice converts a slice of any type into a slice of interface{}.
-func InterfaceSlice(slice interface{}) []interface{} {
+func InterfaceSlice(slice any) []any {
 	v := reflect.ValueOf(slice)
 	if v.Kind() != reflect.Slice {
 		panic(fmt.Errorf("InterfaceSlice: not a slice but %T", slice))
 	}
-	result := make([]interface{}, v.Len())
+	result := make([]any, v.Len())
 	for i := range result {
 		result[i] = v.Index(i).Interface()
 	}
 	return result
 }
 
-func IsZero(value interface{}) bool {
+func IsZero(value any) bool {
 	if value == nil {
 		return true
 	}

@@ -1,3 +1,8 @@
+// Copyright (c) 2020 Xelaj Software
+//
+// This file is a part of go-dry package.
+// See https://github.com/xelaj/go-dry/blob/master/LICENSE for details
+
 package dry
 
 import (
@@ -64,7 +69,7 @@ func (h *HTTPCompressHandler) ServeHTTP(response http.ResponseWriter, request *h
 // and sends it as HTTP POST request to url.
 // If the response status code is not 200 OK,
 // then the status is returned as an error.
-func HTTPPostJSON(url string, data interface{}) error {
+func HTTPPostJSON(url string, data any) error {
 	b, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {
 		return err
@@ -76,11 +81,11 @@ func HTTPPostJSON(url string, data interface{}) error {
 	req.Header.Set("Content-Type", "application/json")
 	response, err := http.DefaultClient.Do(req)
 	defer response.Body.Close()
-	
+
 	if err == nil && (response.StatusCode < 200 || response.StatusCode > 299) {
 		err = errors.New(response.Status)
 	}
-	
+
 	return err
 }
 
@@ -88,7 +93,7 @@ func HTTPPostJSON(url string, data interface{}) error {
 // and sends it as HTTP POST request to url.
 // If the response status code is not 200 OK,
 // then the status is returned as an error.
-func HTTPPostXML(url string, data interface{}) error {
+func HTTPPostXML(url string, data any) error {
 	b, err := xml.MarshalIndent(data, "", "  ")
 	if err != nil {
 		return err
@@ -149,7 +154,7 @@ func HTTPPutForm(url string, data url.Values) (statusCode int, statusText string
 
 // HTTPRespondMarshalJSON marshals response as JSON to responseWriter, sets Content-Type to application/json
 // and compresses the response if Content-Encoding from the request allows it.
-func HTTPRespondMarshalJSON(response interface{}, responseWriter http.ResponseWriter, request *http.Request) (err error) {
+func HTTPRespondMarshalJSON(response any, responseWriter http.ResponseWriter, request *http.Request) (err error) {
 	NewHTTPCompressHandlerFromFunc(func(responseWriter http.ResponseWriter, request *http.Request) {
 		var data []byte
 		if data, err = json.Marshal(response); err == nil {
@@ -163,7 +168,7 @@ func HTTPRespondMarshalJSON(response interface{}, responseWriter http.ResponseWr
 // HTTPRespondMarshalIndentJSON marshals response as JSON to responseWriter, sets Content-Type to application/json
 // and compresses the response if Content-Encoding from the request allows it.
 // The JSON will be marshalled indented according to json.MarshalIndent
-func HTTPRespondMarshalIndentJSON(response interface{}, prefix, indent string, responseWriter http.ResponseWriter, request *http.Request) (err error) {
+func HTTPRespondMarshalIndentJSON(response any, prefix, indent string, responseWriter http.ResponseWriter, request *http.Request) (err error) {
 	NewHTTPCompressHandlerFromFunc(func(responseWriter http.ResponseWriter, request *http.Request) {
 		var data []byte
 		if data, err = json.MarshalIndent(response, prefix, indent); err == nil {
@@ -177,7 +182,7 @@ func HTTPRespondMarshalIndentJSON(response interface{}, prefix, indent string, r
 // HTTPRespondMarshalXML marshals response as XML to responseWriter, sets Content-Type to application/xml
 // and compresses the response if Content-Encoding from the request allows it.
 // If rootElement is not empty, then an additional root element with this name will be wrapped around the content.
-func HTTPRespondMarshalXML(response interface{}, rootElement string, responseWriter http.ResponseWriter, request *http.Request) (err error) {
+func HTTPRespondMarshalXML(response any, rootElement string, responseWriter http.ResponseWriter, request *http.Request) (err error) {
 	NewHTTPCompressHandlerFromFunc(func(responseWriter http.ResponseWriter, request *http.Request) {
 		var data []byte
 		if data, err = xml.Marshal(response); err == nil {
@@ -196,7 +201,7 @@ func HTTPRespondMarshalXML(response interface{}, rootElement string, responseWri
 // and compresses the response if Content-Encoding from the request allows it.
 // The XML will be marshalled indented according to xml.MarshalIndent.
 // If rootElement is not empty, then an additional root element with this name will be wrapped around the content.
-func HTTPRespondMarshalIndentXML(response interface{}, rootElement string, prefix, indent string, responseWriter http.ResponseWriter, request *http.Request) (err error) {
+func HTTPRespondMarshalIndentXML(response any, rootElement string, prefix, indent string, responseWriter http.ResponseWriter, request *http.Request) (err error) {
 	NewHTTPCompressHandlerFromFunc(func(responseWriter http.ResponseWriter, request *http.Request) {
 		var data []byte
 		contentPrefix := prefix
@@ -226,7 +231,7 @@ func HTTPRespondText(response string, responseWriter http.ResponseWriter, reques
 }
 
 // HTTPUnmarshalRequestBodyJSON reads a http.Request body and unmarshals it as JSON to result.
-func HTTPUnmarshalRequestBodyJSON(request *http.Request, result interface{}) error {
+func HTTPUnmarshalRequestBodyJSON(request *http.Request, result any) error {
 	defer request.Body.Close()
 	body, err := ioutil.ReadAll(request.Body)
 	if err != nil {

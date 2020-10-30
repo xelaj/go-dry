@@ -1,3 +1,8 @@
+// Copyright (c) 2020 Xelaj Software
+//
+// This file is a part of go-dry package.
+// See https://github.com/xelaj/go-dry/blob/master/LICENSE for details
+
 package dry
 
 import (
@@ -52,7 +57,7 @@ func (rw *CountingReadWriter) Write(p []byte) (n int, err error) {
 
 // ReadBinary wraps binary.Read with a CountingReader and returns
 // the acutal bytes read by it.
-func ReadBinary(r io.Reader, order binary.ByteOrder, data interface{}) (n int, err error) {
+func ReadBinary(r io.Reader, order binary.ByteOrder, data any) (n int, err error) {
 	countingReader := CountingReader{Reader: r}
 	err = binary.Read(&countingReader, order, data)
 	return countingReader.BytesRead, err
@@ -99,7 +104,7 @@ func ReadLine(reader io.Reader) (line string, err error) {
 // The first byte from os.Stdin is returned as result.
 // If there are println arguments, then fmt.Println will be
 // called with those before reading from os.Stdin.
-func WaitForStdin(v ...interface{}) byte {
+func WaitForStdin(v ...any) byte {
 	if len(v) > 0 {
 		fmt.Println(v...)
 	}

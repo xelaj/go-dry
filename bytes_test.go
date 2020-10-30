@@ -1,3 +1,8 @@
+// Copyright (c) 2020 Xelaj Software
+//
+// This file is a part of go-dry package.
+// See https://github.com/xelaj/go-dry/blob/master/LICENSE for details
+
 package dry
 
 import (
@@ -27,7 +32,7 @@ func (t MyError) Error() string {
 
 func Test_BytesReader(t *testing.T) {
 	expected := []byte("hello")
-	testBytesReaderFn := func(input interface{}) {
+	testBytesReaderFn := func(input any) {
 		result := make([]byte, 5)
 		returnedIoReader := BytesReader(input)
 		n, _ := returnedIoReader.Read(result)

@@ -1,3 +1,8 @@
+// Copyright (c) 2020 Xelaj Software
+//
+// This file is a part of go-dry package.
+// See https://github.com/xelaj/go-dry/blob/master/LICENSE for details
+
 package dry
 
 import (
@@ -5,7 +10,7 @@ import (
 	"reflect"
 )
 
-func SliceIndex(i, item interface{}) int {
+func SliceIndex(i, item any) int {
 	ival := reflect.ValueOf(i)
 	if ival.Type().Kind() != reflect.Slice {
 		panic("not a slice: " + ival.Type().String())
@@ -23,15 +28,19 @@ func SliceIndex(i, item interface{}) int {
 	return -1
 }
 
-func DeleteIndex(slice interface{}, i int) interface{} {
+func SliceContains(i, item any) bool {
+	return SliceIndex(i, item) != -1
+}
+
+func DeleteIndex(slice any, i int) any {
 	return cutSliceWithMode(slice, i, i+1, true)
 }
 
-func SliceCut(slice interface{}, i, j int) interface{} {
+func SliceCut(slice any, i, j int) any {
 	return cutSliceWithMode(slice, i, j, false)
 }
 
-func cutSliceWithMode(slice interface{}, i, j int, deleteInsteadCut bool) interface{} {
+func cutSliceWithMode(slice any, i, j int, deleteInsteadCut bool) any {
 	panicIndexStr := fmt.Sprintf("[%v:%v]", i, j)
 	if deleteInsteadCut {
 		panicIndexStr = fmt.Sprintf("[%v]", i)
@@ -55,7 +64,7 @@ func cutSliceWithMode(slice interface{}, i, j int, deleteInsteadCut bool) interf
 	return reflect.AppendSlice(ival.Slice(0, i), ival.Slice(j, ival.Len())).Interface()
 }
 
-func SliceExpand(slice interface{}, i, j int) interface{} {
+func SliceExpand(slice any, i, j int) any {
 	panicIndexStr := fmt.Sprintf("[%v]", i)
 
 	ival := reflect.ValueOf(slice)
@@ -78,7 +87,7 @@ func SliceExpand(slice interface{}, i, j int) interface{} {
 	return reflect.AppendSlice(ival.Slice(0, i), part).Interface()
 }
 
-func SliceToInterfaceSlice(in interface{}) []interface{} {
+func SliceToInterfaceSlice(in any) []any {
 	if in == nil {
 		return nil
 	}
@@ -88,7 +97,7 @@ func SliceToInterfaceSlice(in interface{}) []interface{} {
 		panic("not a slice: " + ival.Type().String())
 	}
 
-	res := make([]interface{}, ival.Len())
+	res := make([]any, ival.Len())
 
 	for i := 0; i < ival.Len(); i++ {
 		res[i] = ival.Index(i).Interface()
@@ -96,7 +105,8 @@ func SliceToInterfaceSlice(in interface{}) []interface{} {
 	return res
 }
 
-func MapKeys(in interface{}) interface{} {
+// map[<K>]<V> -> []<K> // (K, V) could be any type
+func MapKeys(in any) any {
 	ival := reflect.ValueOf(in)
 	if ival.Type().Kind() != reflect.Map {
 		panic("not a map: " + ival.Type().String())
@@ -112,16 +122,49 @@ func MapKeys(in interface{}) interface{} {
 	return items.Interface()
 }
 
-func SliceUnique(in interface{}) interface{} {
+// []<T> -> map[<T>]struct{}
+func SliceUnique(in any) any {
 	ival := reflect.ValueOf(in)
 	if ival.Type().Kind() != reflect.Slice {
 		panic("not a slice: " + ival.Type().String())
 	}
 
-	res := reflect.MakeMap(reflect.MapOf(ival.Type().Elem(), reflect.TypeOf(struct{}{})))
+	res := reflect.MakeMap(reflect.MapOf(ival.Type().Elem(), reflect.TypeOf(null{})))
 
 	for i := 0; i < ival.Len(); i++ {
-		res.SetMapIndex(ival.Index(i), reflect.ValueOf(struct{}{}))
+		res.SetMapIndex(ival.Index(i), reflect.ValueOf(null{}))
 	}
+	return res.Interface()
+}
+
+func SetUnify(a, b any) any {
+	aval := reflect.ValueOf(a)
+	if aval.Type().Kind() != reflect.Slice {
+		panic("first element is not a slice: " + aval.Type().String())
+	}
+	bval := reflect.ValueOf(b)
+	if bval.Type().Kind() != reflect.Slice {
+		panic("second element is not a slice: " + bval.Type().String())
+	}
+
+	if aval.Type().Elem() != bval.Type().Elem() {
+		panic("slices has different types")
+	}
+
+	pretotal := reflect.MakeMap(reflect.MapOf(aval.Type().Elem(), reflect.TypeOf(null{})))
+
+	for i := 0; i < aval.Len(); i++ {
+		pretotal.SetMapIndex(aval.Index(i), reflect.ValueOf(null{}))
+	}
+	for i := 0; i < bval.Len(); i++ {
+		pretotal.SetMapIndex(bval.Index(i), reflect.ValueOf(null{}))
+	}
+
+	res := reflect.New(aval.Type()).Elem()
+
+	for _, key := range pretotal.MapKeys() {
+		res = reflect.Append(res, key)
+	}
+
 	return res.Interface()
 }

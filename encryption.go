@@ -1,3 +1,8 @@
+// Copyright (c) 2020 Xelaj Software
+//
+// This file is a part of go-dry package.
+// See https://github.com/xelaj/go-dry/blob/master/LICENSE for details
+
 package dry
 
 import (
@@ -22,7 +27,7 @@ type aesCipherPool struct {
 }
 
 func (pool *aesCipherPool) forKey(key []byte) *sync.Pool {
-	return pool.poolMap.GetOrAddNew(string(key), func() interface{} {
+	return pool.poolMap.GetOrAddNew(string(key), func() any {
 		block, err := aes.NewCipher(key)
 		if err != nil {
 			panic(err)
