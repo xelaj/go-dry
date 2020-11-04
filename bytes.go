@@ -224,3 +224,12 @@ func BigIntBytesAutoChoose(v *big.Int) []byte {
 	offset := choosedBitsize/8 - vbytesLen
 	return append(make([]byte, offset), vbytes...)
 }
+
+func BytesXor(a, b []byte) []byte {
+	res := make([]byte, len(a))
+	copy(res, a)
+	for i := range res {
+		res[i] ^= b[i]
+	}
+	return res
+}

@@ -6,6 +6,7 @@
 package dry
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 	"testing"
@@ -133,6 +134,34 @@ func TestStringsCommonPrefix(t *testing.T) {
 			if !assert.Equal(t, tt.want, StringsCommonPrefix(tt.a, tt.b)) {
 				t.Fail()
 			}
+		})
+	}
+}
+
+func TestStringsCRLF(t *testing.T) {
+	type args struct {
+	}
+	tests := []struct {
+		in   string
+		want string
+	}{
+		{
+			"abcd\r\nefgh",
+			"abcd\nefgh",
+		},
+		{
+			"abcd\refgh\n",
+			"abcd\refgh\n",
+		},
+		{
+			"\r\n\r\r\n",
+			"\n\r\n",
+		},
+	}
+	for i, tt := range tests {
+		t.Run(fmt.Sprintf("#%v", i), func(t *testing.T) {
+			got := StringsCRLF(tt.in)
+			assert.Equal(t, tt.want, got)
 		})
 	}
 }

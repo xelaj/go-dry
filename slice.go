@@ -10,8 +10,10 @@ import (
 	"reflect"
 )
 
-func SliceIndex(i, item any) int {
-	ival := reflect.ValueOf(i)
+// индекс элемента T в []T
+// выводит индекс найденого элемента, либо -1, если элемент не найден
+func SliceIndex(slice, item any) int {
+	ival := reflect.ValueOf(slice)
 	if ival.Type().Kind() != reflect.Slice {
 		panic("not a slice: " + ival.Type().String())
 	}
@@ -28,8 +30,8 @@ func SliceIndex(i, item any) int {
 	return -1
 }
 
-func SliceContains(i, item any) bool {
-	return SliceIndex(i, item) != -1
+func SliceContains(slice, item any) bool {
+	return SliceIndex(slice, item) != -1
 }
 
 func DeleteIndex(slice any, i int) any {
@@ -167,4 +169,24 @@ func SetUnify(a, b any) any {
 	}
 
 	return res.Interface()
+}
+
+// пока только строчки, потом сделаю нормальный интерфейс
+func SetsEqual(a, b []string) bool {
+	// If one is nil, the other must also be nil.
+	if (a == nil) != (b == nil) {
+		return false
+	}
+
+	if len(a) != len(b) {
+		return false
+	}
+
+	for i := range a {
+		if a[i] != b[i] {
+			return false
+		}
+	}
+
+	return true
 }
