@@ -190,3 +190,16 @@ func SetsEqual(a, b []string) bool {
 
 	return true
 }
+
+// SliceForEach is special function, when you just know, that some variable is slice. try to not use this func
+// instead, for _,_ := range _ is WAY MORE preferrable. This func is only is useful for rarest situtations
+func SliceForEach(slice interface{}, f func(index int, i interface{})) {
+	ival := reflect.ValueOf(slice)
+	if ival.Type().Kind() != reflect.Slice {
+		panic("not a slice: " + ival.Type().String())
+	}
+
+	for i := 0; i < ival.Len(); i++ {
+		f(i, ival.Index(i).Interface())
+	}
+}

@@ -8,6 +8,8 @@ module github.com/xelaj/go-dry
 go 1.13
 
 require (
+	github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e // indirect
+	github.com/fatih/set v0.2.1 // indirect
 	github.com/stretchr/testify v1.6.1
 	golang.org/x/crypto v0.0.0-20201016220609-9e8e0b390897
 	golang.org/x/sys v0.0.0-20201029080932-201ba4db2418

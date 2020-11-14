@@ -11,3 +11,43 @@ package dry
 func FirstArg(args ...any) any {
 	return args[0]
 }
+
+func ConvertInt(n interface{}) int {
+	switch n := n.(type) {
+	case int:
+		return n
+	case int8:
+		return int(n)
+	case int16:
+		return int(n)
+	case int32:
+		return int(n)
+	case int64:
+		return int(n)
+	case uint:
+		return int(n)
+	case uintptr:
+		return int(n)
+	case uint8:
+		return int(n)
+	case uint16:
+		return int(n)
+	case uint32:
+		return int(n)
+	case uint64:
+		return int(n)
+	default:
+		panic("value is not an integer in any way")
+	}
+}
+
+func ConvertFloat(n interface{}) float64 {
+	switch n := n.(type) {
+	case float64:
+		return n
+	case float32:
+		return float64(n)
+	default:
+		panic("value is not a float in any way")
+	}
+}

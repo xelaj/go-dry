@@ -266,3 +266,16 @@ func IsZero(value any) bool {
 
 	panic(fmt.Errorf("Unknown value kind %T", value))
 }
+
+func ReflectIsInteger(i any) bool {
+	switch i.(type) {
+	case int8, uint8, int16, uint16, int32, uint32, int64, uint64, int, uint:
+		return true
+	default:
+		return false
+	}
+}
+
+func ReflectIsIntgerType(t reflect.Type) bool {
+	return t.ConvertibleTo(reflect.TypeOf(int(0)))
+}
