@@ -89,6 +89,7 @@ func SliceExpand(slice any, i, j int) any {
 	return reflect.AppendSlice(ival.Slice(0, i), part).Interface()
 }
 
+// SliceToInterfaceSlice converts a slice of any type into a slice of interface{}.
 func SliceToInterfaceSlice(in any) []any {
 	if in == nil {
 		return nil

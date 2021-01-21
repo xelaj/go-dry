@@ -213,58 +213,9 @@ func (r *reflectSortable) Less(i, j int) bool {
 }
 
 func (r *reflectSortable) Swap(i, j int) {
-	temp := r.Slice.Index(i).Interface()
+	temp := r.Slice.Index(i)
 	r.Slice.Index(i).Set(r.Slice.Index(j))
-	r.Slice.Index(j).Set(reflect.ValueOf(temp))
-}
-
-// InterfaceSlice converts a slice of any type into a slice of interface{}.
-func InterfaceSlice(slice any) []any {
-	v := reflect.ValueOf(slice)
-	if v.Kind() != reflect.Slice {
-		panic(fmt.Errorf("InterfaceSlice: not a slice but %T", slice))
-	}
-	result := make([]any, v.Len())
-	for i := range result {
-		result[i] = v.Index(i).Interface()
-	}
-	return result
-}
-
-func IsZero(value any) bool {
-	if value == nil {
-		return true
-	}
-
-	v := reflect.ValueOf(value)
-	// if IsFakeZero(v) {
-	// 	return true
-	// }
-
-	switch v.Kind() {
-	case reflect.String:
-		return v.Len() == 0
-
-	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-		return v.Int() == 0
-
-	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-		return v.Uint() == 0
-
-	case reflect.Float32, reflect.Float64:
-		return v.Float() == 0
-
-	case reflect.Bool:
-		return !v.Bool() // if value is false, then it is zero value
-
-	case reflect.Ptr, reflect.Chan, reflect.Func, reflect.Interface, reflect.Slice, reflect.Map:
-		return v.IsNil()
-
-	case reflect.Struct:
-		return reflect.DeepEqual(value, reflect.Zero(v.Type()).Interface())
-	}
-
-	panic(fmt.Errorf("Unknown value kind %T", value))
+	r.Slice.Index(j).Set(temp)
 }
 
 func ReflectIsInteger(i any) bool {
@@ -278,4 +229,82 @@ func ReflectIsInteger(i any) bool {
 
 func ReflectIsIntgerType(t reflect.Type) bool {
 	return t.ConvertibleTo(reflect.TypeOf(int(0)))
+}
+
+// true if a < b
+func ReflectLess(a, b interface{}) bool {
+	aVal := reflect.ValueOf(a)
+	bVal := reflect.ValueOf(b)
+	switch k := aVal.Type().Kind(); k {
+	case reflect.Bool:
+		ar := aVal.Bool()
+		switch k := bVal.Type().Kind(); k {
+		case reflect.Bool:
+			br := bVal.Bool()
+			return (!ar && br)
+		default:
+			panic("can't compare " + aVal.Type().String() + " and " + bVal.Type().String())
+		}
+
+	case reflect.String:
+		ar := aVal.String()
+		switch k := bVal.Type().Kind(); k {
+		case reflect.String:
+			br := bVal.String()
+			return ar < br
+		default:
+			panic("can't compare " + aVal.Type().String() + " and " + bVal.Type().String())
+		}
+
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		ar := aVal.Int()
+		switch k := bVal.Type().Kind(); k {
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+			br := bVal.Int()
+			return ar < br
+		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+			br := bVal.Uint()
+			return uint64(ar) < br
+		case reflect.Float32, reflect.Float64:
+			br := bVal.Float()
+			return float64(ar) < br
+		default:
+			panic("can't compare " + aVal.Type().String() + " and " + bVal.Type().String())
+		}
+
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		ar := aVal.Uint()
+		switch k := bVal.Type().Kind(); k {
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+			br := bVal.Int()
+			return ar < uint64(br)
+		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+			br := bVal.Uint()
+			return ar < br
+		case reflect.Float32, reflect.Float64:
+			br := bVal.Float()
+			return float64(ar) < br
+		default:
+			panic("can't compare " + aVal.Type().String() + " and " + bVal.Type().String())
+		}
+
+	case reflect.Float32, reflect.Float64:
+		ar := aVal.Float()
+		switch k := bVal.Type().Kind(); k {
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+			br := bVal.Int()
+			return ar < float64(br)
+		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+			br := bVal.Uint()
+			return ar < float64(br)
+		case reflect.Float32, reflect.Float64:
+			br := bVal.Float()
+			return ar < br
+		default:
+			panic("can't compare " + aVal.Type().String() + " and " + bVal.Type().String())
+		}
+	default:
+		panic("can't compare " + aVal.Type().String() + " and " + bVal.Type().String())
+		//TODO: if type implements Less method, than use it
+	}
 }

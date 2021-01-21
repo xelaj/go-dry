@@ -8,5 +8,9 @@
 package dry
 
 func pathIsWirtable(path string) bool {
-	panic("not implemented for windows")
+	// currently it's too hard to implement windows checking (i really want to! but i don't have any windows
+	// machine to test). We found this package github.com/hectane/go-acl, so we can implement this feature
+	// using advapi32.dll.
+	// TODO: implement it
+	return true
 }
