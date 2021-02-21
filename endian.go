@@ -6,18 +6,27 @@
 package dry
 
 import (
-	"math"
+	"encoding/binary"
+	"runtime"
 	"unsafe"
 )
 
 func EndianIsLittle() bool {
-	var word uint16 = 1
-	littlePtr := (*uint8)(unsafe.Pointer(&word))
-	return (*littlePtr) == 1
+	return PlatformEndianess() == binary.LittleEndian
+}
+
+func PlatformEndianess() binary.ByteOrder {
+	switch runtime.GOARCH {
+	case "mips", "mips64", "ppc64", "s390x":
+		return binary.BigEndian
+
+	default:
+		return binary.BigEndian
+	}
 }
 
 func EndianIsBig() bool {
-	return !EndianIsLittle()
+	return PlatformEndianess() == binary.BigEndian
 }
 
 func EndianSafeSplitUint16(value uint16) (leastSignificant, mostSignificant uint8) {
@@ -26,15 +35,4 @@ func EndianSafeSplitUint16(value uint16) (leastSignificant, mostSignificant uint
 		return bytes[0], bytes[1]
 	}
 	return bytes[1], bytes[0]
-}
-
-// TODO: короче, проблема в представлении интов как последовательности байт, и хер поймет как правильно отрицательные числа переводить в негативные
-// https://www.rapidtables.com/convert/number/decimal-to-hex.html
-func NormalizeInt(n int) uint32 {
-	return uint32(0x100000000 + n)
-}
-
-// не работает // FIXME
-func NormalizeLong(n int64) uint64 {
-	return uint64(math.MaxInt64 + n)
 }

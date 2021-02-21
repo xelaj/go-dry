@@ -37,6 +37,7 @@ func RandomHEXString(length int) string {
 	return getRandomHexString(length, "%X")
 }
 
+// deprecated except for strings. you can copy this oneline implementation
 func RandomChooseString(items ...string) string {
 	return items[mathRand.Intn(len(items))]
 }
@@ -47,6 +48,7 @@ func RandomBytes(size int) []byte {
 	return b
 }
 
+// deprecated except for strings. you can copy this oneline implementation
 func RandomChoose(items ...any) any {
 	return items[mathRand.Intn(len(items))]
 }

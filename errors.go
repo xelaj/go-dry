@@ -15,7 +15,7 @@ import (
 func PanicIfErr(args ...any) {
 	for _, v := range args {
 		if err, _ := v.(error); err != nil {
-			panic(fmt.Sprintf("Panicking because of error: %v\n", err))
+			panic(fmt.Sprintf("Panicking because of error: %+v\n", err))
 		}
 	}
 }

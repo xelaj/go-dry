@@ -12,31 +12,44 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"strconv"
+
+	dry_ioutil "github.com/xelaj/go-dry/ioutil"
 )
 
-type CountingReader struct {
-	Reader    io.Reader
-	BytesRead int
+type ReadCounter = dry_ioutil.ReadCounter
+
+func CountingReader(r io.Reader) ReadCounter {
+	return dry_ioutil.CountingReader(r)
 }
 
-func (r *CountingReader) Read(p []byte) (n int, err error) {
-	n, err = r.Reader.Read(p)
-	r.BytesRead += n
-	return n, err
+type WriteCounter = dry_ioutil.WriteCounter
+
+func CountingWriter(w io.Writer) WriteCounter {
+	return dry_ioutil.CountingWriter(w)
 }
 
-type CountingWriter struct {
-	Writer       io.Writer
-	BytesWritten int
+// WriteFull calls writer.Write until all of data is written,
+// or an is error returned.
+func WriteFull(data []byte, writer io.Writer) (n int, err error) {
+	return dry_ioutil.WriteAll(data, writer)
 }
 
-func (r *CountingWriter) Write(p []byte) (n int, err error) {
-	n, err = r.Writer.Write(p)
-	r.BytesWritten += n
-	return n, err
+// ReaderFunc implements io.Reader as function type with a Read method.
+type ReaderFunc = dry_ioutil.ReaderFunc
+
+// WriterFunc implements io.Writer as function type with a Write method.
+type WriterFunc = dry_ioutil.WriterFunc
+
+// CancelableReader позволяет читать данные с контекстом
+type CancelableReader = dry_ioutil.CancelableReader
+
+func NewCancelableReader(ctx context.Context, r io.Reader) *CancelableReader {
+	return dry_ioutil.NewCancelableReader(ctx, r)
 }
 
+// methods below are deprecated
+
+// TODO: принцип интересный, но не входит в рамки io
 type CountingReadWriter struct {
 	ReadWriter   io.ReadWriter
 	BytesRead    int
@@ -55,28 +68,16 @@ func (rw *CountingReadWriter) Write(p []byte) (n int, err error) {
 	return n, err
 }
 
+//! DEPRECATED
 // ReadBinary wraps binary.Read with a CountingReader and returns
 // the acutal bytes read by it.
 func ReadBinary(r io.Reader, order binary.ByteOrder, data any) (n int, err error) {
-	countingReader := CountingReader{Reader: r}
-	err = binary.Read(&countingReader, order, data)
-	return countingReader.BytesRead, err
+	countingReader := CountingReader(r)
+	err = binary.Read(countingReader, order, data)
+	return countingReader.Count(), err
 }
 
-// WriteFull calls writer.Write until all of data is written,
-// or an is error returned.
-func WriteFull(data []byte, writer io.Writer) (n int, err error) {
-	dataSize := len(data)
-	for n = 0; n < dataSize; {
-		m, err := writer.Write(data[n:])
-		n += m
-		if err != nil {
-			return n, err
-		}
-	}
-	return dataSize, nil
-}
-
+//! DEPRECATED
 // ReadLine reads unbuffered until a newline '\n' byte and removes
 // an optional carriege return '\r' at the end of the line.
 // In case of an error, the string up to the error is returned.
@@ -100,6 +101,7 @@ func ReadLine(reader io.Reader) (line string, err error) {
 	return string(data), err
 }
 
+//! DEPRECATED
 // WaitForStdin blocks until input is available from os.Stdin.
 // The first byte from os.Stdin is returned as result.
 // If there are println arguments, then fmt.Println will be
@@ -111,85 +113,4 @@ func WaitForStdin(v ...any) byte {
 	buffer := make([]byte, 1)
 	_, _ = os.Stdin.Read(buffer)
 	return buffer[0]
-}
-
-// ReaderFunc implements io.Reader as function type with a Read method.
-type ReaderFunc func(p []byte) (int, error)
-
-func (f ReaderFunc) Read(p []byte) (int, error) {
-	return f(p)
-}
-
-// WriterFunc implements io.Writer as function type with a Write method.
-type WriterFunc func(p []byte) (int, error)
-
-func (f WriterFunc) Write(p []byte) (int, error) {
-	return f(p)
-}
-
-// CancelableReader позволяет читать данные с контекстом
-type CancelableReader struct {
-	ctx  context.Context
-	data chan []byte
-
-	// размер сообщения, которое мы хотим получить. пока в sizeWant не пошлется длина, ридер не будет читать
-	sizeWant chan int
-
-	err error
-	r   io.Reader
-}
-
-func (c *CancelableReader) begin() {
-	for {
-		sizewant := <-c.sizeWant
-		buf := make([]byte, sizewant)
-		// readFull, cause some readers like net.TCPConn returns size smaller than buf size
-		n, err := io.ReadFull(c.r, buf)
-		if err != nil {
-			c.err = err
-			close(c.data)
-			return
-		}
-		if n != sizewant {
-			panic("read " + strconv.Itoa(n) + ", want " + strconv.Itoa(sizewant))
-		}
-		c.data <- buf
-	}
-}
-
-func (c *CancelableReader) Read(p []byte) (int, error) {
-	c.sizeWant <- len(p)
-	select {
-	case <-c.ctx.Done():
-		return 0, c.ctx.Err()
-	case d, ok := <-c.data:
-		if !ok {
-			return 0, c.err
-		}
-		copy(p, d)
-		return len(d), nil
-	}
-}
-
-func (c *CancelableReader) ReadByte() (byte, error) {
-	b := make([]byte, 1)
-
-	n, err := c.Read(b)
-	if err != nil {
-		return 0x0, err
-	}
-	PanicIf(n != 1, "read more than 1 byte, got "+strconv.Itoa(n))
-
-	return b[0], nil
-}
-
-func NewCancelableReader(ctx context.Context, r io.Reader) *CancelableReader {
-	c := &CancelableReader{
-		r:        r,
-		ctx:      ctx,
-		data:     make(chan []byte),
-		sizeWant: make(chan int),
-	}
-	go c.begin()
-	return c
 }
