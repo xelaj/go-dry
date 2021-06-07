@@ -13,7 +13,7 @@ import (
 	"golang.org/x/sys/unix"
 )
 
-func pathIsWirtable(path string) bool {
+func pathIsWritable(path string) bool {
 	inspectPath, _ := filepath.Abs(path)
 
 	nearestPath := PathNearestExisting(inspectPath)

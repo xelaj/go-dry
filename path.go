@@ -40,8 +40,8 @@ func PathSplitExt(path string) (basepath, ext string) {
 	return
 }
 
-func PathIsWirtable(path string) bool {
-	return pathIsWirtable(path)
+func PathIsWritable(path string) bool {
+	return pathIsWritable(path)
 }
 
 func PathNearestExisting(path string) string {
