@@ -7,7 +7,7 @@
 
 package dry
 
-func pathIsWirtable(path string) bool {
+func pathIsWritable(path string) bool {
 	// currently it's too hard to implement windows checking (i really want to! but i don't have any windows
 	// machine to test). We found this package github.com/hectane/go-acl, so we can implement this feature
 	// using advapi32.dll.
