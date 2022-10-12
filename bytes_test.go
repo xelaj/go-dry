@@ -7,62 +7,10 @@ package dry
 
 import (
 	"bytes"
-	"io"
 	"reflect"
-	"strings"
 	"sync"
 	"testing"
 )
-
-type MyString struct {
-	str string
-}
-
-func (t MyString) String() string {
-	return t.str
-}
-
-type MyError struct {
-	str string
-}
-
-func (t MyError) Error() string {
-	return t.str
-}
-
-func Test_BytesReader(t *testing.T) {
-	expected := []byte("hello")
-	testBytesReaderFn := func(input any) {
-		result := make([]byte, 5)
-		returnedIoReader := BytesReader(input)
-		n, _ := returnedIoReader.Read(result)
-		if n != 5 {
-			t.FailNow()
-		}
-		for i := range result {
-			if result[i] != expected[i] {
-				t.FailNow()
-			}
-		}
-		n, err := returnedIoReader.Read(result)
-		if n != 0 || err != io.EOF {
-			t.FailNow()
-		}
-	}
-
-	testBytesReaderFn(strings.NewReader("hello"))
-
-	bytesInput := []byte("hello")
-	testBytesReaderFn(bytesInput)
-
-	testBytesReaderFn("hello")
-
-	myStr := MyString{"hello"}
-	testBytesReaderFn(myStr)
-
-	myErr := MyError{"hello"}
-	testBytesReaderFn(myErr)
-}
 
 func assertStringsEqual(t *testing.T, str1, str2 string) {
 	if str1 != str2 {

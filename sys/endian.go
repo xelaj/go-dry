@@ -1,9 +1,9 @@
-// Copyright (c) 2020 Xelaj Software
+// Copyright (c) 2022 Xelaj Software
 //
 // This file is a part of go-dry package.
 // See https://github.com/xelaj/go-dry/blob/master/LICENSE for details
 
-package dry
+package sys
 
 import (
 	"encoding/binary"
@@ -18,7 +18,7 @@ func EndianIsLittle() bool {
 func PlatformEndianess() binary.ByteOrder {
 	switch runtime.GOARCH {
 	case "mips", "mips64", "ppc64", "s390x":
-		return binary.BigEndian
+		return binary.LittleEndian
 
 	default:
 		return binary.BigEndian

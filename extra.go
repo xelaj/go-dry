@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Xelaj Software
+// Copyright (c) 2022 Xelaj Software
 //
 // This file is a part of go-dry package.
 // See https://github.com/xelaj/go-dry/blob/master/LICENSE for details

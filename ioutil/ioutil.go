@@ -1,3 +1,8 @@
+// Copyright (c) 2022 Xelaj Software
+//
+// This file is a part of go-dry package.
+// See https://github.com/xelaj/go-dry/blob/master/LICENSE for details
+
 // Since in Go 1.16, stdlib ioutil is deprecated, this package named exactly as replacer to this package
 
 package ioutil

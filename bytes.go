@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Xelaj Software
+// Copyright (c) 2022 Xelaj Software
 //
 // This file is a part of go-dry package.
 // See https://github.com/xelaj/go-dry/blob/master/LICENSE for details
@@ -13,27 +13,9 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"math/big"
-	"strings"
 )
-
-func BytesReader(data any) io.Reader {
-	switch s := data.(type) {
-	case io.Reader:
-		return s
-	case []byte:
-		return bytes.NewReader(s)
-	case string:
-		return strings.NewReader(s)
-	case fmt.Stringer:
-		return strings.NewReader(s.String())
-	case error:
-		return strings.NewReader(s.Error())
-	}
-	return nil
-}
 
 func BytesMD5(data string) string {
 	hash := md5.New()

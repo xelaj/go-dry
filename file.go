@@ -1,4 +1,4 @@
-// Copyright (c) 2020 Xelaj Software
+// Copyright (c) 2022 Xelaj Software
 //
 // This file is a part of go-dry package.
 // See https://github.com/xelaj/go-dry/blob/master/LICENSE for details
@@ -17,14 +17,13 @@ import (
 	"fmt"
 	"hash/crc64"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
-
-	// "strconv"
 	"strings"
 	"time"
+
+	"github.com/xelaj/go-dry/ioutil"
 )
 
 func FileBufferedReader(filenameOrURL string) (io.Reader, error) {
@@ -32,7 +31,7 @@ func FileBufferedReader(filenameOrURL string) (io.Reader, error) {
 	if err != nil {
 		return nil, err
 	}
-	return BytesReader(data), nil
+	return ioutil.BytesReader(data), nil
 }
 
 func FileGetBytes(filenameOrURL string, timeout ...time.Duration) ([]byte, error) {
@@ -52,14 +51,14 @@ func FileGetBytes(filenameOrURL string, timeout ...time.Duration) ([]byte, error
 			if r.StatusCode < 200 || r.StatusCode > 299 {
 				return nil, fmt.Errorf("%d: %s", r.StatusCode, http.StatusText(r.StatusCode))
 			}
-			return ioutil.ReadAll(r.Body)
+			return io.ReadAll(r.Body)
 		}
 	}
-	return ioutil.ReadFile(filenameOrURL)
+	return os.ReadFile(filenameOrURL)
 }
 
 func FileSetBytes(filename string, data []byte) error {
-	return ioutil.WriteFile(filename, data, 0660)
+	return os.WriteFile(filename, data, 0660)
 }
 
 func FileAppendBytes(filename string, data []byte) error {
@@ -297,7 +296,7 @@ func FileGetLastLine(filenameOrURL string, timeout ...time.Duration) (line strin
 		if start := info.Size() - 64*1024; start > 0 {
 			file.Seek(start, os.SEEK_SET)
 		}
-		data, err = ioutil.ReadAll(file)
+		data, err = io.ReadAll(file)
 		if err != nil {
 			return "", err
 		}
@@ -306,41 +305,6 @@ func FileGetLastLine(filenameOrURL string, timeout ...time.Duration) (line strin
 	pos := bytes.LastIndex(data, []byte{'\n'})
 	return string(data[pos+1:]), nil
 }
-
-// func FileTail(filenameOrURL string, numLines int, timeout ...time.Duration) (lines []string, err error) {
-// 	if strings.Index(filenameOrURL, "file://") == 0 {
-// 		filenameOrURL = filenameOrURL[len("file://"):]
-// 	} else if strings.Contains(filenameOrURL, "://") {
-// 		data, err := FileGetBytes(filenameOrURL, timeout...)
-// 		if err != nil {
-// 			return nil, err
-// 		}
-// 		lines, _ := BytesTail(data, numLines)
-// 		return lines, nil
-// 	}
-
-// 	// data := make([]byte, 0, 1024*256)
-
-// 	// file, err := os.Open(filenameOrURL)
-// 	// if err != nil {
-// 	// 	return nil, err
-// 	// }
-// 	// defer file.Close()
-// 	// info, err := file.Stat()
-// 	// if err != nil {
-// 	// 	return nil, err
-// 	// }
-// 	// if start := info.Size() - 64*1024; start > 0 {
-// 	// 	file.Seek(start, os.SEEK_SET)
-// 	// }
-// 	// data, err = ioutil.ReadAll(file)
-// 	// if err != nil {
-// 	// 	return nil, err
-// 	// }
-
-// 	return lines, nil
-
-// }
 
 // FileTimeModified returns the modified time of a file,
 // or the zero time value in case of an error.
@@ -439,7 +403,7 @@ func FileGetInflate(filenameOrURL string) ([]byte, error) {
 	}
 	reader := flate.NewReader(bytes.NewBuffer(data))
 	defer reader.Close()
-	return ioutil.ReadAll(reader)
+	return io.ReadAll(reader)
 }
 
 func FileSetDeflate(filename string, data []byte) error {
@@ -471,7 +435,7 @@ func FileGetGz(filenameOrURL string) ([]byte, error) {
 		return nil, err
 	}
 	defer reader.Close()
-	return ioutil.ReadAll(reader)
+	return io.ReadAll(reader)
 }
 
 func FileSetGz(filename string, data []byte) error {
@@ -621,7 +585,7 @@ func FileCopyDir(source string, dest string) (err error) {
 	if err != nil {
 		return err
 	}
-	entries, err := ioutil.ReadDir(source)
+	entries, err := os.ReadDir(source)
 	for _, entry := range entries {
 		sourcePath := filepath.Join(source, entry.Name())
 		destinationPath := filepath.Join(dest, entry.Name())
